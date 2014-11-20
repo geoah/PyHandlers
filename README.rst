@@ -1,22 +1,17 @@
-Python Handler
-==============
+Python Handlers
+===============
 
-License
--------
+Description
+-----------
 
-Copyright 2014 University of Liverpool
+Creates a demo HTTP server to create and manage payloads. Each payload is a process to be executed on the server. 
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+A new payload is created with a POST request to the /payloads web app, a uuid is generated and returned so it can be used to identify the process.
 
-http://www.apache.org/licenses/LICENSE-2.0
+A GET request to the /payloads request will return a list of all payloads. A GET request to /payloads/uuid will return information on a specific payload.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+All payloads are stored in memory and thus are not persistent.
+
 
 Installation
 ------------
@@ -48,3 +43,122 @@ Run Web-Platform for Development/Demo
 ::
 
     handler-serve
+
+
+Usage
+-----
+
+Create payload - POST /payloads
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* sample request:
+
+::
+
+    curl -X POST -d '{ "cmd": "/bin/sleep", "params": ["30"] }' http://localhost:8000/payloads
+
+* response:
+
+::
+
+    {
+        "status": "pending",
+        "cmd": "/bin/sleep",
+        "params": [
+            "30"
+        ],
+        "id": "0d111286d6fb4f7ebd7464082bada101"
+    }
+
+* sample request:
+
+::
+
+    curl -X POST -d '{ "cmd": "/bin/ping", "params": ["-c", "5", "google.com"] }' http://localhost:8000/payloads
+
+* response:
+
+::
+
+    {
+        "status": "pending",
+        "cmd": "/bin/ping",
+        "params": [
+            "-c",
+            "5",
+            "google.com"
+        ],
+        "id": "b51547fe3ff7409cb75f4ab13f764d8e"
+    }
+
+
+Get all payloads - GET /payloads
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* sample request:
+
+::
+
+    curl -X GET http://localhost:8000/payloads
+
+* response:
+
+::
+
+    [
+        {
+            "status": "error:start('/sbin/ping':No such file or directory",
+            "cmd": "/sbin/ping",
+            "params": [
+                "-c",
+                "5",
+                "google.com"
+            ],
+            "id": "9b771f621eef49e696eb75cadfc0537b"
+        },
+        {
+            "status": "finished",
+            "cmd": "/bin/sleep",
+            "params": [
+                "30"
+            ],
+            "id": "0d111286d6fb4f7ebd7464082bada101"
+        },        
+        {
+            "status": "working",
+            "cmd": "/bin/ping",
+            "params": [
+                "-c",
+                "5",
+                "google.com"
+            ],
+            "id": "e92f4a7546af45f49f27f07588ecb2b5"
+        },
+    
+    
+    ]
+
+Get a specific payload - GET /payloads/uuid
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* sample request:
+
+::
+
+    curl -X GET http://localhost:8000/payloads/e92f4a7546af45f49f27f07588ecb2b5
+
+* response:
+
+::
+
+    {
+        "status": "finished",
+        "cmd": "/bin/ping",
+        "params": [
+            "-c",
+            "5",
+            "google.com"
+        ],
+        "id": "e92f4a7546af45f49f27f07588ecb2b5"
+    }
+
